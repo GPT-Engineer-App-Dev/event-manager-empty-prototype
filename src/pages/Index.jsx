@@ -1,7 +1,9 @@
-import { Box, Container, Flex, Heading, Link, Spacer, Text, VStack } from "@chakra-ui/react";
+import { Box, Container, Flex, Heading, Link, Spacer, Text, VStack, Spinner, Alert, AlertIcon } from "@chakra-ui/react";
+import { useEvents } from "../integrations/supabase";
 import { Link as RouterLink } from "react-router-dom";
 
 const Index = () => {
+  const { data: events, error, isLoading } = useEvents();
   return (
     <Container maxW="container.xl" p={0}>
       <Flex as="nav" bg="blue.500" color="white" p={4} align="center">
@@ -27,6 +29,25 @@ const Index = () => {
             Welcome to Event Manager
           </Heading>
           <Text>This is a placeholder for the main content.</Text>
+        {isLoading && <Spinner />}
+          {error && (
+            <Alert status="error">
+              <AlertIcon />
+              {error.message}
+            </Alert>
+          )}
+          {events && events.length > 0 && (
+            <VStack spacing={4} align="stretch">
+              {events.map(event => (
+                <Box key={event.id} p={4} borderWidth="1px" borderRadius="lg">
+                  <Heading as="h3" size="sm">{event.name}</Heading>
+                  <Text>{event.description}</Text>
+                  <Text>{new Date(event.date).toLocaleDateString()}</Text>
+                  <Text>Venue: {event.venue.name}</Text>
+                </Box>
+              ))}
+            </VStack>
+          )}
         </VStack>
       </Box>
     </Container>
